@@ -3,7 +3,7 @@ from typing import List
 import tensorflow as tf
 from sacred import Ingredient
 
-from tape.data_utils import PFAM_VOCAB, deserialize_pfam_sequence
+from tape.data_utils import PFAM_VOCAB, deserialize_abc_tran_sequence
 from tape.task_models import RandomSequenceMask, AminoAcidClassPredictor
 from .AbstractLanguageModelingTask import AbstractLanguageModelingTask
 
@@ -28,7 +28,7 @@ class MaskedLanguageModelingTask(AbstractLanguageModelingTask):
 
         super().__init__(
             key_metric='BERTAcc',
-            deserialization_func=deserialize_pfam_sequence,
+            deserialization_func=deserialize_abc_tran_sequence,
             n_classes=n_symbols,
             label_name='original_sequence',
             input_name='encoder_output',

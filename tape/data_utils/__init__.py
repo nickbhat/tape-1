@@ -1,3 +1,4 @@
+from .abc_tran_serializer import deserialize_abc_tran_sequence
 from .binary_scop_protein_serializer import deserialize_binary_scop_sequence  # noqa: F401
 from .bepler_contact_map_protein_serializer import deserialize_contact_map_sequence  # noqa: F401
 from .fluorescence_protein_serializer import deserialize_fluorescence_sequence  # noqa: F401

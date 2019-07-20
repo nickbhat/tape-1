@@ -36,13 +36,13 @@ class AbstractLanguageModelingTask(SequenceToSequenceClassificationTask):
         return loss, metrics
 
     def get_train_files(self, data_folder) -> List[str]:
-        train_files = glob(os.path.join(data_folder, 'pfam', '*train_*[0-9].tfrecord'))
+        train_files = glob(os.path.join(data_folder, 'abc_tran.tfrecord'))
         if len(train_files) == 0:
             raise FileNotFoundError("No training TFrecord files found in directory")
         return train_files
 
     def get_valid_files(self, data_folder) -> List[str]:
-        valid_files = glob(os.path.join(data_folder, 'pfam', '*valid_*[0-9].tfrecord'))
+        valid_files = glob(os.path.join(data_folder, 'abc_tran_seed.tfrecord'))
         if len(valid_files) == 0:
             raise FileNotFoundError("No validation TFrecord files found in directory")
         return valid_files
@@ -52,9 +52,7 @@ class AbstractLanguageModelingTask(SequenceToSequenceClassificationTask):
                         buckets: List[int],
                         batch_sizes: List[int],
                         shuffle: bool,
-                        is_holdout: bool,
-                        holdout_clans: set,
-                        holdout_families: set) -> tf.data.Dataset:
+                        is_holdout: bool,) -> tf.data.Dataset:
 
         def _check_membership(tensor, array):
             iscontained = tf.py_func(lambda t: t in array, [tensor], tf.bool)
@@ -71,7 +69,7 @@ class AbstractLanguageModelingTask(SequenceToSequenceClassificationTask):
             dataset = tf.data.TFRecordDataset(fname)
             dataset = dataset.map(self._deserialization_func)
             # Hold out a prespecified set of families and clans
-            dataset = dataset.filter(_filter_fn)
+            #dataset = dataset.filter(_filter_fn)
             return dataset
 
         dataset = filenames.apply(
@@ -96,38 +94,38 @@ class AbstractLanguageModelingTask(SequenceToSequenceClassificationTask):
                  add_cls_token: bool = False,
                  **kwargs) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
 
-        fam_file = os.path.join(data_folder, 'pfam', 'pfam_fams.pkl')
-        clan_file = os.path.join(data_folder, 'pfam', 'pfam_clans.pkl')
+        #fam_file = os.path.join(data_folder, 'pfam', 'pfam_fams.pkl')
+        #clan_file = os.path.join(data_folder, 'pfam', 'pfam_clans.pkl')
 
-        _holdout_clans = ['CL0635', 'CL0624', 'CL0355', 'CL0100', 'CL0417', 'CL0630']
-        _holdout_families = ['PF18346', 'PF14604', 'PF18697', 'PF03577', 'PF01112', 'PF03417']
+        #_holdout_clans = ['CL0635', 'CL0624', 'CL0355', 'CL0100', 'CL0417', 'CL0630']
+        #_holdout_families = ['PF18346', 'PF14604', 'PF18697', 'PF03577', 'PF01112', 'PF03417']
 
-        with open(fam_file, 'rb') as f:
-            fam_dict: Dict[str, int] = pkl.load(f)
+        #with open(fam_file, 'rb') as f:
+        #    fam_dict: Dict[str, int] = pkl.load(f)
 
-        with open(clan_file, 'rb') as f:
-            clan_dict: Dict[str, int] = pkl.load(f)
+        #with open(clan_file, 'rb') as f:
+        #    clan_dict: Dict[str, int] = pkl.load(f)
 
-        holdout_clans = {clan_dict[k] for k in _holdout_clans}
-        holdout_families = {fam_dict[k] for k in _holdout_families}
+        #holdout_clans = {clan_dict[k] for k in _holdout_clans}
+        #holdout_families = {fam_dict[k] for k in _holdout_families}
 
-        print('Currently holding out the following families:', *_holdout_families, sep='\n-')
-        print('Currently holding out the following clans: ', *_holdout_clans, sep='\n-')
+        #print('Currently holding out the following families:', *_holdout_families, sep='\n-')
+        #print('Currently holding out the following clans: ', *_holdout_clans, sep='\n-')
 
         train_files = self.get_train_files(data_folder)
         valid_files = self.get_valid_files(data_folder)
-        train_files = [fname for fname in train_files if fname not in valid_files]
+#        train_files = [fname for fname in train_files if fname not in valid_files]
 
         train_filenames = tf.data.Dataset.from_tensor_slices(tf.constant(train_files))
         valid_filenames = tf.data.Dataset.from_tensor_slices(tf.constant(valid_files))
 
         buckets, batch_sizes = boundaries
         train_data = self.prepare_dataset(
-            train_filenames, buckets, batch_sizes, shuffle=True, is_holdout=False,
-            holdout_clans=holdout_clans, holdout_families=holdout_families)
+            train_filenames, buckets, batch_sizes, shuffle=True, is_holdout=False,)
+            #holdout_clans=holdout_clans, holdout_families=holdout_families)
         valid_data = self.prepare_dataset(
-            valid_filenames, buckets, batch_sizes, shuffle=False, is_holdout=False,
-            holdout_clans=holdout_clans, holdout_families=holdout_families)
+            valid_filenames, buckets, batch_sizes, shuffle=False, is_holdout=False,)
+            #holdout_clans=holdout_clans, holdout_families=holdout_families)
 
         return train_data, valid_data
 
