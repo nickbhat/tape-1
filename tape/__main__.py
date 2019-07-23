@@ -331,9 +331,8 @@ def main(_run, _config, tasks: Union[str, List[str]], model: str):
         outfile = os.path.join(outdir, 'outputs.pkl') if _config['save_outputs'] else None
         test_metrics = test_graph.run_epoch(epoch_num=epoch, save_outputs=outfile)
 
-        if all(isinstance(task, AbstractLanguageModelingTask) for task in tasks):
-            with experiment.distribution_strategy.scope():
-                embedding_model.save_weights('{}/epoch_{}.h5'.format(outdir, epoch), overwrite=True)
+        with experiment.distribution_strategy.scope():
+            embedding_model.save_weights('{}/epoch_{}.h5'.format(outdir, epoch), overwrite=True)
 
         evaluator.check_and_log_metric(train_metrics, test_metrics)
 
