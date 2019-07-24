@@ -332,7 +332,8 @@ def main(_run, _config, tasks: Union[str, List[str]], model: str):
         test_metrics = test_graph.run_epoch(epoch_num=epoch, save_outputs=outfile)
 
         with experiment.distribution_strategy.scope():
-            embedding_model.save_weights('{}/epoch_{}.h5'.format(outdir, epoch), overwrite=True)
+            embedding_model.save_weights('{}/lm_weights_epoch_{}.h5'.format(outdir, epoch), overwrite=True)
+            task_model.save_weights('{}/task_weights_epoch_{}.h5'.format(outdir, epoch), overwrite=True)
 
         evaluator.check_and_log_metric(train_metrics, test_metrics)
 
